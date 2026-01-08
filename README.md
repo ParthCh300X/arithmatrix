@@ -1,4 +1,5 @@
-# 🧮 ArithMatrix — Intelligent Calculator with Voice, Camera & Currency Conversion
+# 🧮 ArithMatrix
+### Intelligent Calculator with Voice, Camera & Currency Conversion
 
 ArithMatrix is a modern, multi-modal calculator application built for users who want more than basic arithmetic.  
 It blends typed input, voice interaction, camera-based expression recognition, and currency conversion into a single, clean, professional Android app.
@@ -22,25 +23,6 @@ The app is minimal on the surface, yet powerful under the hood.
 
 ---
 
-## 🗂 Repository Structure
-
-```text
-ArithMatrix/
-├── app/
-│   ├── data/
-│   │   ├── local/        # Room entities, DAO, database
-│   │   └── repository/  # Repository layer
-│   ├── ui/
-│   │   ├── basic/       # Basic calculator UI
-│   │   ├── voice/       # Voice calculator UI
-│   │   ├── camera/      # Camera-based calculator UI
-│   │   ├── currency/    # Currency converter UI
-│   │   ├── history/     # History screen
-│   │   └── theme/       # App theming
-│   ├── viewmodel/       # ViewModels (MVVM)
-│   └── di/              # Hilt dependency injection
-└── README.md
-
 ## 📱 Android Application
 
 ### 🔧 Tech Stack
@@ -58,6 +40,7 @@ ArithMatrix/
 ## ✨ Features
 
 ### 🧮 Basic Calculator
+
 - Full expression input (e.g. `50 + 20%`, `12 × (5 + 3)`)
 - Proper operator precedence handling
 - Intelligent percentage evaluation
@@ -67,6 +50,7 @@ ArithMatrix/
 ---
 
 ### 🎙 Voice Calculator
+
 - Speech-to-text based expression input
 - Live transcription before evaluation
 - Optional text-to-speech (TTS) output
@@ -76,6 +60,7 @@ ArithMatrix/
 ---
 
 ### 📷 Camera Calculator
+
 - Camera-based expression capture
 - Text recognition for printed / typed math
 - Editable recognized expressions
@@ -85,6 +70,7 @@ ArithMatrix/
 ---
 
 ### 💱 Currency Converter
+
 - Multi-currency conversion
 - Clean numeric formatting
 - Conversion history
@@ -93,29 +79,36 @@ ArithMatrix/
 ---
 
 ### 🗃 Smart History System
+
 - Persistent local storage using Room
 - Auto-updating history via Flow
 - Delete individual entries or clear all
 - Reuse expressions directly from history
-- Mode-aware history (Basic, Voice, Camera, Currency)
+- Mode-aware history:
+    - Basic
+    - Voice
+    - Camera
+    - Currency
 
 ---
 
 ## 📐 Architecture (MVVM)
 
-```text
-UI (Jetpack Compose)
-        ↓
-ViewModel (StateFlow / Business Logic)
-        ↓
-Repository (Single Source of Truth)
-        ↓
-Room Database / Data Source
+ArithMatrix uses the **MVVM (Model–View–ViewModel)** architecture pattern:
 
----
+**UI (Jetpack Compose)**  
+Displays state and handles user interaction only.
 
-This architecture ensures:
+**ViewModel**  
+Holds UI state using StateFlow and contains all business logic.
 
+**Repository**  
+Acts as the single source of truth and mediates between UI and data sources.
+
+**Room Database**  
+Provides persistent local storage for calculation history.
+
+### This architecture ensures:
 - Clear separation of concerns
 - Testability
 - Scalability
@@ -147,24 +140,26 @@ This architecture ensures:
 ## 🤝 Contributors
 
 ### 👨‍💻 Parth
+
 - Android Development
 - App Architecture & Core Logic
 - Calculator engine & expression evaluator
 - Room database & history system
-- Overall system design  
+- Overall system design
 
-GitHub: https://github.com/ParthCh300x
+🔗 GitHub: https://github.com/ParthCh300x
 
 ---
 
 ### 👨‍💻 Shravan Bire
+
 - Android Development
 - UI & feature contributions
 - UI refinement and interaction design
 - Feature ideation and implementation support
-- Architectural discussions and improvements  
+- Architectural discussions and improvements
 
-GitHub: https://github.com/shravanBire
+🔗 GitHub: https://github.com/shravanBire
 
 ---
 
