@@ -1,7 +1,7 @@
 # 🧮 ArithMatrix
 ### Intelligent Calculator with Voice, Camera & Currency Conversion
 
-ArithMatrix is a modern, multi-modal calculator application built for users who want more than basic arithmetic.  
+ArithMatrix is a modern, multi-modal calculator application built for user who want more than basic arithmetic.  
 It blends typed input, voice interaction, camera-based expression recognition, and currency conversion into a single, clean, professional Android app.
 
 The project is designed with clarity, correctness, and extensibility in mind, using modern Android architecture and best practices.
