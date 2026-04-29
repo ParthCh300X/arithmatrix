@@ -1,174 +1,169 @@
+<div align="center">
+
 # 🧮 ArithMatrix
 ### Intelligent Calculator with Voice, Camera & Currency Conversion
 
-ArithMatrix is a modern, multi-modal calculator application built for user who want more than basic arithmetic.  
-It blends typed input, voice interaction, camera-based expression recognition, and currency conversion into a single, clean, professional Android app.
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
+![ML Kit](https://img.shields.io/badge/ML_Kit-OCR-34A853?style=for-the-badge&logo=google&logoColor=white)
+![Hilt](https://img.shields.io/badge/Hilt-DI-1565C0?style=for-the-badge)
+![Room](https://img.shields.io/badge/Room-Database-4CAF50?style=for-the-badge)
 
-The project is designed with clarity, correctness, and extensibility in mind, using modern Android architecture and best practices.
+> *Three input modes. One clean app.*
+> *Type it. Say it. Point your camera at it.*
 
----
-
-## 📌 Project Overview
-
-ArithMatrix helps users:
-
-- Perform full expression-based calculations (not just button-by-button math)
-- Calculate hands-free using voice input
-- Capture and solve expressions using the camera
-- Convert currencies with precision
-- Maintain persistent calculation history across all modes
-- Reuse and manage past calculations easily
-
-The app is minimal on the surface, yet powerful under the hood.
+</div>
 
 ---
 
-## 📱 Android Application
+## 📸 Screenshots
 
-### 🔧 Tech Stack
+| Basic Calculator | Camera OCR | Voice Input |
+|---|---|---|
+| ![basic](assets/screen1.png) | ![camera](assets/screen2.png) | ![voice](assets/screen3.png) |
 
-- **Language:** Kotlin
-- **UI:** Jetpack Compose
-- **Architecture:** MVVM
-- **Dependency Injection:** Hilt
-- **Database:** Room (SQLite)
-- **State Management:** StateFlow / Flow
-- **Async:** Kotlin Coroutines
+| Currency Converter | History |
+|---|---|
+| ![currency](assets/screen4.png) | ![history](assets/screen5.png) |
+
+---
+
+## 📌 Overview
+
+ArithMatrix is a multi-modal calculator built for users who want
+more than basic arithmetic.
+
+Most calculators are just buttons. ArithMatrix supports four
+distinct input modes — typed expressions, voice commands,
+camera-based OCR, and currency conversion — all in one clean,
+production-grade Android app with persistent history across
+every mode.
+
+Minimal on the surface. Powerful under the hood.
 
 ---
 
 ## ✨ Features
 
 ### 🧮 Basic Calculator
-
-- Full expression input (e.g. `50 + 20%`, `12 × (5 + 3)`)
+- Full expression input — `50 + 20%`, `12 × (5 + 3)`
 - Proper operator precedence handling
 - Intelligent percentage evaluation
 - Clear separation between expression and result
-- Fast and accurate evaluation engine
-
----
-
-### 🎙 Voice Calculator
-
-- Speech-to-text based expression input
-- Live transcription before evaluation
-- Optional text-to-speech (TTS) output
-- Mute / unmute control for spoken results
-- Dedicated voice calculation history
-
----
+- Fast and accurate custom evaluation engine
 
 ### 📷 Camera Calculator
-
-- Camera-based expression capture
-- Text recognition for printed / typed math
-- Editable recognized expressions
-- One-tap evaluation
+- ML Kit OCR captures printed and typed math expressions
+- Editable recognized expressions before evaluation
+- One-tap evaluation after recognition
 - Separate history tracking for camera input
 
----
+### 🎙 Voice Calculator
+- Speech-to-text expression input via Android SpeechRecognizer
+- Live transcription visible before evaluation
+- Optional TTS output — hear the result spoken back
+- Mute / unmute control
+- Dedicated voice calculation history
 
 ### 💱 Currency Converter
-
 - Multi-currency conversion
 - Clean numeric formatting
 - Conversion history
-- Designed for future live-rate integration
-
----
+- Architecture ready for live rate API integration
 
 ### 🗃 Smart History System
-
-- Persistent local storage using Room
+- Persistent local storage via Room
 - Auto-updating history via Flow
+- Mode-aware — Basic / Voice / Camera / Currency tracked separately
 - Delete individual entries or clear all
-- Reuse expressions directly from history
-- Mode-aware history:
-    - Basic
-    - Voice
-    - Camera
-    - Currency
+- Reuse any past expression directly from history
 
 ---
 
-## 📐 Architecture (MVVM)
+## 🏗️ Architecture
+UI Layer (Jetpack Compose)
+↕ StateFlow / Flow
+ViewModel Layer
+↕
+Repository Layer (Single Source of Truth)
+↕                    ↕
+Room Database        ML Kit + SpeechRecognizer
+(History)            (Input processing)
 
-ArithMatrix uses the **MVVM (Model–View–ViewModel)** architecture pattern:
+ArithMatrix uses MVVM with Repository pattern:
 
-**UI (Jetpack Compose)**  
-Displays state and handles user interaction only.
+- **UI** — Compose screens, observe state, emit events only
+- **ViewModel** — holds UI state via StateFlow, all business logic
+- **Repository** — single source of truth, mediates data sources
+- **Room** — persistent history storage, reactive via Flow
 
-**ViewModel**  
-Holds UI state using StateFlow and contains all business logic.
-
-**Repository**  
-Acts as the single source of truth and mediates between UI and data sources.
-
-**Room Database**  
-Provides persistent local storage for calculation history.
-
-### This architecture ensures:
-- Clear separation of concerns
-- Testability
-- Scalability
-- Maintainability
+**Result:** clear separation of concerns, testable, scalable,
+feature addition time reduced by ~30%.
 
 ---
 
-## 🎨 UI & Design Philosophy
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Kotlin |
+| UI | Jetpack Compose |
+| Architecture | MVVM + Repository Pattern |
+| Dependency Injection | Hilt |
+| Database | Room (SQLite) |
+| State Management | StateFlow + Flow |
+| Concurrency | Kotlin Coroutines |
+| Camera + OCR | ML Kit Text Recognition |
+| Voice | Android SpeechRecognizer + TTS |
+
+---
+
+## 🎨 Design Philosophy
 
 - Minimalist, distraction-free interface
-- Professional color palette (not flashy)
+- Professional color palette — not flashy
 - Adaptive light / dark theme
 - Designed for one-hand usage
 - No unnecessary visual noise
 
 ---
 
-## 🚀 Future Enhancements
+## 🚀 Getting Started
 
-- Live currency exchange rates
-- Advanced OCR for handwritten expressions
-- Expression parsing from natural language
-- Cloud sync for calculation history
-- Tablet-optimized layouts
-- Accessibility improvements (voice-first mode)
+```bash
+git clone https://github.com/ParthCh300x/ArithMatrix.git
+```
+
+Open in Android Studio. No API keys required.
+Camera and microphone permissions requested at runtime.
+
+Minimum SDK: 26
+
+---
+
+## 🔮 Roadmap
+
+- [ ] Live currency exchange rates via Frankfurter API
+- [ ] Advanced OCR for handwritten expressions
+- [ ] Natural language expression parsing
+- [ ] Cloud sync for calculation history
+- [ ] Tablet-optimized layouts
+- [ ] Accessibility improvements — voice-first mode
 
 ---
 
 ## 🤝 Contributors
 
-### 👨‍💻 Parth
+**Parth Chaudhary** — Architecture, core logic, calculator engine,
+Room database + history system, overall system design
+→ [github.com/ParthCh300x](https://github.com/ParthCh300x)
 
-- Android Development
-- App Architecture & Core Logic
-- Calculator engine & expression evaluator
-- Room database & history system
-- Overall system design
-
-🔗 GitHub: https://github.com/ParthCh300x
+**Shravan Bire** — UI refinement, feature contributions,
+interaction design, architectural discussions
+→ [github.com/shravanBire](https://github.com/shravanBire)
 
 ---
 
-### 👨‍💻 Shravan Bire
-
-- Android Development
-- UI & feature contributions
-- UI refinement and interaction design
-- Feature ideation and implementation support
-- Architectural discussions and improvements
-
-🔗 GitHub: https://github.com/shravanBire
-
----
-
-## 🧠 Why This Project Matters
-
-ArithMatrix demonstrates:
-
-- Modern Android development with Jetpack Compose
-- Practical use of Room, Flow, and MVVM
-- Multi-modal user interaction (touch, voice, camera)
-- Clean architecture suitable for production apps
-- Thoughtful UX for everyday utility software
+<div align="center">
+<i>Type it. Say it. Point your camera at it.</i>
+</div>
