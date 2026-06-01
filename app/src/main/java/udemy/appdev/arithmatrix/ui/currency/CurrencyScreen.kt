@@ -20,8 +20,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +27,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,33 +37,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import udemy.appdev.arithmatrix.ui.BottomNavBar
-import udemy.appdev.arithmatrix.ui.camera.CameraTopBar
-import udemy.appdev.arithmatrix.viewmodel.CameraViewModel
 import udemy.appdev.arithmatrix.viewmodel.CurrencyViewModel
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyScreen(
     navController: NavHostController,
-    currencyViewModel: CurrencyViewModel = viewModel()
+    currencyViewModel: CurrencyViewModel = hiltViewModel()
 ) {
-    // Bind to ViewModel state
     val amount by currencyViewModel.amount.collectAsState()
     val fromCurrency by currencyViewModel.fromCurrency.collectAsState()
     val toCurrency by currencyViewModel.toCurrency.collectAsState()
     val result by currencyViewModel.result.collectAsState()
     val isLoading by currencyViewModel.isLoading.collectAsState()
     val error by currencyViewModel.error.collectAsState()
-
-    // supported currencies from repo (static cached)
+    val convertedText by currencyViewModel.convertedText.collectAsState()
     val currencies = currencyViewModel.supportedCurrencies
 
     Scaffold(
@@ -86,10 +75,11 @@ fun CurrencyScreen(
         },
         bottomBar = { BottomNavBar(navController = navController) }
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
-
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -97,8 +87,6 @@ fun CurrencyScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                // Amount input (string kept in ViewModel)
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { currencyViewModel.onAmountChanged(it) },
@@ -108,8 +96,10 @@ fun CurrencyScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // From / Swap / To row
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     CurrencyDropdown(
                         label = "From",
                         selected = fromCurrency,
@@ -117,16 +107,11 @@ fun CurrencyScreen(
                         onSelected = { currencyViewModel.onFromCurrencyChanged(it) },
                         modifier = Modifier.weight(1f)
                     )
-
                     Spacer(modifier = Modifier.width(8.dp))
-
-                    // Swap button
                     OutlinedButton(onClick = { currencyViewModel.swapCurrencies() }) {
                         Icon(imageVector = Icons.Default.SwapHoriz, contentDescription = "Swap")
                     }
-
                     Spacer(modifier = Modifier.width(8.dp))
-
                     CurrencyDropdown(
                         label = "To",
                         selected = toCurrency,
@@ -138,14 +123,15 @@ fun CurrencyScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Convert / Loading
                 Button(
                     onClick = { currencyViewModel.convert() },
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.height(18.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(
+                            modifier = Modifier.height(18.dp),
+                            strokeWidth = 2.dp
+                        )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text("Converting...")
                     } else {
@@ -153,7 +139,6 @@ fun CurrencyScreen(
                     }
                 }
 
-                // Error text
                 if (!error.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -164,9 +149,6 @@ fun CurrencyScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                val convertedText by currencyViewModel.convertedText.collectAsState()
-
-// Result card
                 AnimatedVisibility(
                     visible = convertedText.isNotEmpty(),
                     enter = fadeIn(),
@@ -183,15 +165,11 @@ fun CurrencyScreen(
                         )
                     }
                 }
-
             }
         }
     }
 }
 
-/**
- * Slightly improved dropdown — accepts modifier so it can be used in a row with weight()
- */
 @Composable
 fun CurrencyDropdown(
     label: String,

@@ -17,7 +17,6 @@ class HistoryViewModel @Inject constructor(
     private val repository: HistoryRepository
 ) : ViewModel() {
 
-    // Reactive history list, auto-updates when DB changes
     val history: StateFlow<List<HistoryEntity>> =
         repository.getAllHistory()
             .stateIn(
@@ -26,21 +25,22 @@ class HistoryViewModel @Inject constructor(
                 initialValue = emptyList()
             )
 
-    // Simple UI state holder (Loading/Idle/Error)
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
     val uiState: StateFlow<UiState> = _uiState
 
-    // Insert history item (expression + result)
+    // mode param is now actually used when building the entity
     fun insert(expression: String, result: String, mode: String = "BASIC") {
         viewModelScope.launch {
             try {
                 _uiState.value = UiState.Loading
-                val entry = HistoryEntity(
-                    expression = expression,
-                    result = result,
-                    timestamp = System.currentTimeMillis()
+                repository.insert(
+                    HistoryEntity(
+                        expression = expression,
+                        result = result,
+                        source = mode,
+                        timestamp = System.currentTimeMillis()
+                    )
                 )
-                repository.insert(entry)
                 _uiState.value = UiState.Idle
             } catch (e: Exception) {
                 _uiState.value = UiState.Error(e.localizedMessage ?: "Unknown error")
@@ -48,7 +48,6 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    // Delete a single history item
     fun delete(entry: HistoryEntity) {
         viewModelScope.launch {
             try {
@@ -59,7 +58,6 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    // Clear all history
     fun clearAll() {
         viewModelScope.launch {
             try {
@@ -71,7 +69,6 @@ class HistoryViewModel @Inject constructor(
     }
 }
 
-// --- UI State (simple sealed class) ---
 sealed class UiState {
     object Idle : UiState()
     object Loading : UiState()

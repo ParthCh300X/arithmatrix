@@ -2,8 +2,6 @@ package udemy.appdev.arithmatrix.ui.camera
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -28,23 +26,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -59,24 +51,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import udemy.appdev.arithmatrix.ui.BottomNavBar
 import udemy.appdev.arithmatrix.viewmodel.CameraViewModel
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import javax.xml.xpath.XPathExpression
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraScreen(navController: NavHostController, cameraViewModel: CameraViewModel = viewModel()) {
+fun CameraScreen(
+    navController: NavHostController,
+    cameraViewModel: CameraViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -98,24 +88,18 @@ fun CameraScreen(navController: NavHostController, cameraViewModel: CameraViewMo
     val previewView = remember { PreviewView(context) }
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val imageCapture = remember { ImageCapture.Builder().build() }
-    val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
+    val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
 
     val recognizedText by cameraViewModel.recognizedText.collectAsState()
     val result by cameraViewModel.result.collectAsState()
     val isProcessing by cameraViewModel.isProcessing.collectAsState()
 
-    if(recognizedText.isNotEmpty() || result.isNotEmpty()) {
-        OCRResultCard(expression = recognizedText, result = result, onDismiss = {cameraViewModel.clearAll()})
-    }
-
-    LaunchedEffect(result, recognizedText){
-        if(recognizedText.isNotEmpty() || result.isNotEmpty()){
+    LaunchedEffect(result, recognizedText) {
+        if (recognizedText.isNotEmpty() || result.isNotEmpty()) {
             delay(10_000)
             cameraViewModel.clearAll()
         }
     }
-
-
 
     LaunchedEffect(hasCameraPermission) {
         if (hasCameraPermission) {
@@ -138,18 +122,14 @@ fun CameraScreen(navController: NavHostController, cameraViewModel: CameraViewMo
     }
 
     Scaffold(
-        topBar = {
-            CameraTopBar()
-        },
-        bottomBar = {
-            BottomNavBar(navController = navController)
-        }
+        topBar = { CameraTopBar() },
+        bottomBar = { BottomNavBar(navController = navController) }
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
-
-            // Camera preview
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
             if (recognizedText.isNotEmpty() || result.isNotEmpty()) {
@@ -173,15 +153,13 @@ fun CameraScreen(navController: NavHostController, cameraViewModel: CameraViewMo
                 exit = fadeOut(),
                 modifier = Modifier.align(Alignment.TopCenter)
             ) {
-                // Overlay for OCR results
                 OCRResultCard(
                     expression = prettifyExpression(recognizedText),
                     result = result,
-                    onDismiss = {cameraViewModel.clearAll()}
+                    onDismiss = { cameraViewModel.clearAll() }
                 )
             }
 
-            // Capture Button
             FloatingActionButton(
                 onClick = {
                     if (hasCameraPermission) {
@@ -206,43 +184,33 @@ fun CameraScreen(navController: NavHostController, cameraViewModel: CameraViewMo
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 32.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(50) // ensures circle
+                shape = RoundedCornerShape(50)
             ) {
                 Icon(
-                    imageVector = Icons.Default.CameraAlt, // requires `import androidx.compose.material.icons.filled.CameraAlt`
+                    imageVector = Icons.Default.CameraAlt,
                     contentDescription = "Capture",
                     tint = Color.White,
                     modifier = Modifier.size(36.dp)
                 )
             }
-
         }
     }
-}
-
-/** Extension to convert ImageProxy to Bitmap */
-fun ImageProxy.toBitmap(): Bitmap {
-    val buffer = planes[0].buffer
-    val bytes = ByteArray(buffer.capacity())
-    buffer.get(bytes)
-    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraTopBar() {
-    CenterAlignedTopAppBar(title = {
-        Text(text = "ArithMatrix - Camera Mode",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = "ArithMatrix - Camera Mode",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
-        )
-    },
+        },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
-        scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        )
     )
 }
 
@@ -258,7 +226,9 @@ fun OCRResultCard(expression: String, result: String, onDismiss: () -> Unit) {
                 } else false
             }
         )
-        SwipeToDismissBox(state = dismissState, backgroundContent = {},
+        SwipeToDismissBox(
+            state = dismissState,
+            backgroundContent = {},
             content = {
                 Card(
                     modifier = Modifier
@@ -289,8 +259,6 @@ fun OCRResultCard(expression: String, result: String, onDismiss: () -> Unit) {
     }
 }
 
-
-    fun prettifyExpression(raw: String): String {
-        return raw.replace("*", "x")
-            .replace("/", "÷")
-    }
+fun prettifyExpression(raw: String): String {
+    return raw.replace("*", "×").replace("/", "÷")
+}

@@ -6,15 +6,22 @@ import androidx.lifecycle.viewModelScope
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import udemy.appdev.arithmatrix.data.local.HistoryEntity
+import udemy.appdev.arithmatrix.data.repository.HistoryRepository
 import udemy.appdev.arithmatrix.engine.CalculatorEngine
+import javax.inject.Inject
 
-class CameraViewModel : ViewModel() {
+@HiltViewModel
+class CameraViewModel @Inject constructor(
+    private val historyRepository: HistoryRepository,
+    private val calculatorEngine: CalculatorEngine
+) : ViewModel() {
 
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    private val calculatorEngine = CalculatorEngine()
 
     private val _recognizedText = MutableStateFlow("")
     val recognizedText: StateFlow<String> get() = _recognizedText
@@ -25,10 +32,8 @@ class CameraViewModel : ViewModel() {
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> get() = _isProcessing
 
-    /** Process bitmap through ML Kit OCR and evaluate as math expression */
     fun processImage(bitmap: Bitmap) {
         _isProcessing.value = true
-
         val image = InputImage.fromBitmap(bitmap, 0)
 
         recognizer.process(image)
@@ -36,12 +41,26 @@ class CameraViewModel : ViewModel() {
                 val extracted = visionText.text.replace("\\s".toRegex(), "")
                 _recognizedText.value = extracted
 
-                _result.value = try {
-                    calculatorEngine.evaluate(extracted).toString()
+                val res = try {
+                    val raw = calculatorEngine.evaluate(extracted)
+                    calculatorEngine.formatResult(raw)
                 } catch (e: Exception) {
                     "Error"
                 }
+                _result.value = res
 
+                if (res != "Error") {
+                    viewModelScope.launch {
+                        historyRepository.insert(
+                            HistoryEntity(
+                                expression = extracted,
+                                result = res,
+                                source = "CAMERA",
+                                timestamp = System.currentTimeMillis()
+                            )
+                        )
+                    }
+                }
                 _isProcessing.value = false
             }
             .addOnFailureListener {
@@ -50,8 +69,14 @@ class CameraViewModel : ViewModel() {
                 _isProcessing.value = false
             }
     }
+
     fun clearAll() {
         _result.value = ""
         _recognizedText.value = ""
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        recognizer.close()
     }
 }
